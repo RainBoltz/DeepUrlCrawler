@@ -13,6 +13,7 @@ class DeepCrawler:
         print('crawling: %s'%(url))
         
         try:
+            url = url.lower()
             response = requests.get(url, timeout=10.0)
             raw_html = response.text
             parsed_html = html.fromstring(raw_html)
