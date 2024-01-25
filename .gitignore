@@ -105,6 +105,8 @@ bin
 include
 lib
 pyvenv.cfg
+share
 
 # results
 result.csv
+data
