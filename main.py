@@ -1,12 +1,20 @@
 import requests
 import pandas as pd
 from lxml import html
+from lxml.html.clean import Cleaner
 from urllib.parse import urljoin
+import re
 
 class DeepCrawler:
     def __init__(self, start_page):
         self.visited_url = {}
         self.queue_url = [start_page]
+        
+        # html cleaner
+        self.cleaner = Cleaner()
+        self.cleaner.javascript = True
+        self.cleaner.style = True
+        self.cleaner.kill_tags = ['img']
 
 
     def get_url_list(self, url):
@@ -16,8 +24,10 @@ class DeepCrawler:
             url = url.lower()
             response = requests.get(url, timeout=10.0)
             raw_html = response.text
-            parsed_html = html.fromstring(raw_html)
+            parsed_html = self.cleaner.clean_html(html.fromstring(raw_html))
+            cleaned_html = html.tostring(parsed_html).decode("utf-8")
         except:
+            print(f"ERROR while crawling")
             return
         
         url_title_item = parsed_html.xpath('//title')
@@ -27,6 +37,16 @@ class DeepCrawler:
         except:
             url_title = '(ERROR TITLE)'
         self.visited_url[url] = url_title
+
+        # spans, p etc
+        html_text = cleaned_html
+        TAG_RE = re.compile(r'<[^>]+>')
+        LINE_RE = re.compile(r'\n+')
+        TAB_RE = re.compile(r'\t+')
+        stripped = TAG_RE.sub(' ', html_text)
+        stripped = LINE_RE.sub(' ', stripped)
+        stripped = TAB_RE.sub(' ', stripped)
+        print(f"{stripped}")
     
         for a in parsed_html.xpath('//a'):
             raw_url = a.get('href')
@@ -64,8 +84,8 @@ class DeepCrawler:
         
         
         
-myCrawler = DeepCrawler('https://github.com/rainboltz')
-myCrawler.start_crawling(threshold=25)
+myCrawler = DeepCrawler('https://pypi.org/project/beautifulsoup4/')
+myCrawler.start_crawling(threshold=10)
         
         
         
