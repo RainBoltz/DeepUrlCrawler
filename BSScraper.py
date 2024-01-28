@@ -29,7 +29,7 @@ class BSScraper:
                         rel_url = link_path
                         abs_url = urljoin(url, rel_url)
                     if (link_path.startswith('https://')):
-                        abs_url = a_tag.href
+                        abs_url = a_tag['href']
 
                     if (abs_url is not None and abs_url not in list(self.visited_links) and abs_url not in list(self.doc_queue)):
                         self.doc_queue.append(abs_url)
